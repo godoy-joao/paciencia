@@ -18,12 +18,20 @@ public class Card extends Rectangle{
 
     public Card(Suit suit, int rank) {
         if (back == null) {
-            back = getImage("cards-img/card_back.png");
+            back = getImage("/cards-img/card_back.png");
         }
-        this.face = getImage("cards-img/" + getCardName(suit, rank));
+        this.face = getImage("/cards-img/" + getCardName(suit, rank));
         this.suit = suit;
         this.rank = rank;
         this.setSize(face.getWidth(), face.getHeight());
+    }
+
+    public BufferedImage getFace() {
+        return face;
+    }
+
+    public static BufferedImage getBack() {
+        return back;
     }
 
     private String getCardName(Suit suit, int rank) {
@@ -38,7 +46,7 @@ public class Card extends Rectangle{
 
     private @NotNull BufferedImage getImage(String path) {
         try {
-            BufferedImage srcImage = ImageIO.read(new File(path));
+            BufferedImage srcImage = ImageIO.read(getClass().getResourceAsStream(path));
             Image img = srcImage.getScaledInstance(100, 140, Image.SCALE_SMOOTH);
             BufferedImage bf = new BufferedImage(100, 140, BufferedImage.TYPE_INT_ARGB);
 

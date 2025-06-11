@@ -12,6 +12,7 @@ public class Main {
         Solitaire game = new Solitaire();
         frame.add(game);
         frame.pack();
+        frame.setVisible(true);
         frame.setLocationRelativeTo(null);
         frame.setResizable(false);
         game.start();

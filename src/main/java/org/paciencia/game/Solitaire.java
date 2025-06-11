@@ -5,6 +5,7 @@ import org.paciencia.control.InputHandler;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Solitaire extends JPanel implements Runnable {
@@ -18,12 +19,17 @@ public class Solitaire extends JPanel implements Runnable {
     private boolean running;
 
     public Solitaire() {
-        setSize(1366, 768);
+        Dimension size = new Dimension(1366, 768);
+        setMinimumSize(size);
+        setSize(size);
+        setPreferredSize(size);
+        setMaximumSize(size);
         setBackground(new Color(176, 182, 210));
         thread = new Thread(this);
         handler = new InputHandler();
         pileRect = new Rectangle(40, 50, 250, 140);
         wasteRect = new Rectangle(300, 50, 250, 140);
+        foundationsRect = new ArrayList<>();
         foundationsRect.add(new Rectangle(getWidth() - 40, 50, 100, 140));
         foundationsRect.add(new Rectangle(getWidth() - 150, 50, 100, 140));
         foundationsRect.add(new Rectangle(getWidth() - 260, 50, 100, 140));
