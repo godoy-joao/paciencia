@@ -8,7 +8,10 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Solitaire extends JPanel implements Runnable {
+public class Solitaire extends Canvas implements Runnable {
+
+    public static int WIDTH = 1280;
+    public static int HEIGHT = 768;
 
     public static List<Rectangle> foundationsRect;
     public static Rectangle pileRect;
@@ -19,7 +22,7 @@ public class Solitaire extends JPanel implements Runnable {
     private boolean running;
 
     public Solitaire() {
-        Dimension size = new Dimension(1366, 768);
+        Dimension size = new Dimension(WIDTH, HEIGHT);
         setMinimumSize(size);
         setSize(size);
         setPreferredSize(size);
@@ -36,13 +39,13 @@ public class Solitaire extends JPanel implements Runnable {
         foundationsRect.add(new Rectangle(getWidth() - 370, 50, 100, 140));
         addMouseListener(handler);
         addMouseMotionListener(handler);
+        Deck.createDeck();
     }
 
     public void start() {
         if (running) return;
         running = true;
         thread.start();
-        Deck.createDeck();
     }
 
     public void stop() {
@@ -50,22 +53,27 @@ public class Solitaire extends JPanel implements Runnable {
         try {
             thread.join();
         } catch (InterruptedException e) {
-           System.exit(0);
+            System.exit(0);
         }
     }
 
     @Override
     public void run() {
+        long lastUpdate = System.nanoTime();
+        repaint();
         while (running) {
-            if (Render.hasChanges) {
-                repaint();
+            if (System.nanoTime() > lastUpdate + (1e9 / 30)) {
+                if (Render.hasChanges) {
+                    repaint();
+                }
+                lastUpdate = System.nanoTime();
             }
         }
     }
 
     @Override
-    public void paintComponent(Graphics g) {
-        super.paintComponent(g);
+    public void paint(Graphics g) {
+        super.paint(g);
         Graphics2D g2d = (Graphics2D) g;
         Render.render(g2d);
     }

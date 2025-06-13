@@ -6,10 +6,23 @@ import java.awt.*;
 
 public class Controller {
 
+    public static Card selectedCard;
+    public static Card target;
 
-    public Card getClickedCard(Point point) {
+    public Card getSelectedCard(Point point) {
+        if (selectedCard == null) {
+            selectedCard = getTarget(point);
+            return selectedCard;
+        }
+
+
+        return null;
+    }
+
+    public Card getTarget(Point point) {
         for (Card card : Deck.cards) {
-return card;
+            if (card.contains(point) && card.isFaceUp())
+                return card;
         }
         return null;
     }

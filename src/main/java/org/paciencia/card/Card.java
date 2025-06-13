@@ -59,7 +59,6 @@ public class Card extends Rectangle{
             e.printStackTrace();
             return null;
         }
-
     }
 
     public Suit getSuit() {
