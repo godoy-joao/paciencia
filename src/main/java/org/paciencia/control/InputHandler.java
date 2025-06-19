@@ -5,12 +5,11 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 
 public class InputHandler implements MouseListener, MouseMotionListener {
-    public static int x;
-    public static int y;
+
 
     @Override
     public void mouseClicked(MouseEvent e) {
-
+        Controller.selectCard(e.getPoint());
     }
 
     @Override
@@ -40,7 +39,6 @@ public class InputHandler implements MouseListener, MouseMotionListener {
 
     @Override
     public void mouseMoved(MouseEvent e) {
-        x = e.getX();
-        y = e.getY();
+
     }
 }

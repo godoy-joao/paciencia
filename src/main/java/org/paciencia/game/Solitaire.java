@@ -13,10 +13,6 @@ public class Solitaire extends Canvas implements Runnable {
     public static int WIDTH = 1280;
     public static int HEIGHT = 768;
 
-    public static List<Rectangle> foundationsRect;
-    public static Rectangle pileRect;
-    public static Rectangle wasteRect;
-
     private final Thread thread;
     private InputHandler handler;
     private boolean running;
@@ -30,13 +26,6 @@ public class Solitaire extends Canvas implements Runnable {
         setBackground(new Color(176, 182, 210));
         thread = new Thread(this);
         handler = new InputHandler();
-        pileRect = new Rectangle(40, 50, 250, 140);
-        wasteRect = new Rectangle(300, 50, 250, 140);
-        foundationsRect = new ArrayList<>();
-        foundationsRect.add(new Rectangle(getWidth() - 40, 50, 100, 140));
-        foundationsRect.add(new Rectangle(getWidth() - 150, 50, 100, 140));
-        foundationsRect.add(new Rectangle(getWidth() - 260, 50, 100, 140));
-        foundationsRect.add(new Rectangle(getWidth() - 370, 50, 100, 140));
         addMouseListener(handler);
         addMouseMotionListener(handler);
         Deck.createDeck();

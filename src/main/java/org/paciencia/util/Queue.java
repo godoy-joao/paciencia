@@ -9,18 +9,18 @@ public class Queue {
         list = new LinkedList();
     }
 
-    public void enqueue(Card card) {
+    public void add(Card card) {
         list.add(card);
     }
 
-    public Card dequeue() {
+    public Card remove() {
         if (isEmpty()) {
             throw new IllegalStateException("a fila está vazia");
         }
         return list.remove(0);
     }
 
-    public Card peek() {
+    public Card getFirst() {
         if (isEmpty()) {
             throw new IllegalStateException("a fila está vazia");
         }

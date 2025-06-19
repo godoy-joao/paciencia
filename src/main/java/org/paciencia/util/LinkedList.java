@@ -7,17 +7,7 @@ public class LinkedList {
     private No tail;
     private int size;
 
-    private static class No {
-        Card data;
-        No previous;
-        No next;
 
-        No(Card data) {
-            this.data = data;
-            this.previous = null;
-            this.next = null;
-        }
-    }
     public LinkedList() {
         head = null;
         tail = null;
@@ -38,7 +28,7 @@ public class LinkedList {
 
     public Card remove(int index) {
         if (index < 0 || index >= size) {
-            throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + size);
+            throw new IndexOutOfBoundsException("Index: " + index + ", Tamanho: " + size);
         }
 
         No current;
@@ -57,7 +47,7 @@ public class LinkedList {
         if (current.previous != null) {
             current.previous.next = current.next;
         } else {
-            head = current.next;
+
         }
 
         if (current.next != null) {
@@ -67,17 +57,16 @@ public class LinkedList {
         }
 
         size--;
-        return current.data;
+        return current.card;
     }
 
-    // Obtém uma carta em um índice específico
     public Card get(int index) {
         if (index < 0 || index >= size) {
-            throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + size);
+            throw new IndexOutOfBoundsException("Index: " + index + ", Tamanho: " + size);
         }
 
         No current;
-        if (index < size / 2) { // Otimização: percorre do início ou do fim
+        if (index < size / 2) {
             current = head;
             for (int i = 0; i < index; i++) {
                 current = current.next;
@@ -88,20 +77,17 @@ public class LinkedList {
                 current = current.previous;
             }
         }
-        return current.data;
+        return current.card;
     }
 
-    // Retorna o tamanho da lista
     public int size() {
         return size;
     }
 
-    // Verifica se a lista está vazia
     public boolean isEmpty() {
         return size == 0;
     }
 
-    // Adiciona uma carta no início (opcional)
     public void addFirst(Card card) {
         No novoNo = new No(card);
         if (head == null) {
@@ -115,12 +101,11 @@ public class LinkedList {
         size++;
     }
 
-    // Remove a última carta (opcional)
     public Card removeLast() {
         if (isEmpty()) {
-            throw new IllegalStateException("List is empty");
+            throw new IllegalStateException("Lista está vazia");
         }
-        Card removedData = tail.data;
+        Card removedData = tail.card;
         tail = tail.previous;
         if (tail != null) {
             tail.next = null;
