@@ -82,7 +82,15 @@ public class Card extends Rectangle{
     }
 
     public void flip() {
-        faceUp = true;
+        faceUp = !faceUp;
+    }
+
+    public boolean isBlack() {
+        return (this.getSuit() == Suit.CLUBS || this.getSuit() == Suit.SPADES);
+    }
+
+    public boolean isRed() {
+        return (this.getSuit() == Suit.HEARTS || this.getSuit() == Suit.DIAMONDS);
     }
 
 }

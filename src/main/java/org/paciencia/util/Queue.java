@@ -17,14 +17,14 @@ public class Queue {
         if (isEmpty()) {
             throw new IllegalStateException("a fila está vazia");
         }
-        return list.remove(0);
+        return list.removeLast();
     }
 
-    public Card getFirst() {
+    public Card get() {
         if (isEmpty()) {
             throw new IllegalStateException("a fila está vazia");
         }
-        return list.get(0);
+        return list.get(size() - 1);
     }
 
     public boolean isEmpty() {

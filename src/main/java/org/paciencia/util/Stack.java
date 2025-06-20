@@ -14,14 +14,14 @@ public class Stack {
         list.add(card);
     }
 
-    public Card pop() {
+    public Card remove() {
         if (isEmpty()) {
             throw new IllegalStateException("a pilha está vazia");
         }
         return list.remove(list.size() - 1);
     }
 
-    public Card peek() {
+    public Card get() {
         if (isEmpty()) {
             throw new IllegalStateException("a pilha está vazia");
         }

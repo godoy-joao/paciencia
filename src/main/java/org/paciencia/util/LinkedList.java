@@ -7,7 +7,6 @@ public class LinkedList {
     private No tail;
     private int size;
 
-
     public LinkedList() {
         head = null;
         tail = null;
@@ -18,11 +17,12 @@ public class LinkedList {
         No novoNo = new No(card);
         if (head == null) {
             head = novoNo;
+            tail = novoNo;
         } else {
             tail.next = novoNo;
             novoNo.previous = tail;
+            tail = novoNo;
         }
-        tail = novoNo;
         size++;
     }
 
@@ -47,7 +47,7 @@ public class LinkedList {
         if (current.previous != null) {
             current.previous.next = current.next;
         } else {
-
+            head = current.next;
         }
 
         if (current.next != null) {
@@ -101,19 +101,66 @@ public class LinkedList {
         size++;
     }
 
+    public Card getFirst() {
+        if (isEmpty()) {
+            return null;
+        }
+        return head.card;
+    }
+
+    public Card getLast() {
+        if (isEmpty()) {
+            return null;
+        }
+        return tail.card;
+    }
+
     public Card removeLast() {
         if (isEmpty()) {
             throw new IllegalStateException("Lista está vazia");
         }
+
         Card removedData = tail.card;
-        tail = tail.previous;
-        if (tail != null) {
-            tail.next = null;
-        } else {
+
+        if (size == 1) {
             head = null;
+            tail = null;
+        } else {
+            tail = tail.previous;
+            tail.next = null;
+        }
+
+        size--;
+        return removedData;
+    }
+
+    public Card removeFirst() {
+        if (isEmpty()) {
+            throw new IllegalStateException("Lista está vazia");
+        }
+
+        Card removedData = head.card;
+
+        if (size == 1) {
+            head = null;
+            tail = null;
+        } else {
+            head = head.next;
+            head.previous = null;
         }
         size--;
         return removedData;
     }
-}
 
+    public boolean contains(Card card) {
+        No current = head;
+        while (current != null) {
+            if (current.card.equals(card)) {
+                return true;
+            }
+            current = current.next;
+        }
+        return false;
+    }
+
+}

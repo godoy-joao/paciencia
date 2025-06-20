@@ -1,12 +1,10 @@
 package org.paciencia.card;
 
+import org.paciencia.control.Controller;
 import org.paciencia.game.Render;
-import org.paciencia.game.Solitaire;
 import org.paciencia.util.*;
 
-import java.awt.*;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Random;
 
 public class Deck {
 
@@ -17,6 +15,7 @@ public class Deck {
     public static Queue waste = new Queue();
 
     public static void createDeck() {
+        new Controller();
         columns = new LinkedList[]{
                 new LinkedList(), new LinkedList(), new LinkedList(), new LinkedList(), new LinkedList(),
                 new LinkedList(), new LinkedList()
@@ -31,6 +30,13 @@ public class Deck {
                 cards.add(new Card(suit, i));
             }
         }
+        LinkedList randomizedCards = new LinkedList();
+        int size = cards.size();
+        Random random = new Random();
+        for (int i = 0; i < size; i++) {
+            randomizedCards.add(cards.remove(random.nextInt(cards.size())));
+        }
+        cards = randomizedCards;
         distribute();
         Render.hasChanges = true;
     }
@@ -43,7 +49,7 @@ public class Deck {
                 if (j == i - 1) card.flip();
 
                 System.out.println("Para cima: "+card.isFaceUp()+", Valor: "+card.getSuit().name()+" "+card.getRank());
-                card.setLocation(Solitaire.WIDTH / 8 + (i * 130), 220);
+                card.setLocation(180 + (i * 140), 220 + (j*30));
                 columns[i-1].add(card);
             }
         }

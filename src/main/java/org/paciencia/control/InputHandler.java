@@ -9,7 +9,7 @@ public class InputHandler implements MouseListener, MouseMotionListener {
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        Controller.selectCard(e.getPoint());
+        Controller.onClick(e.getPoint());
     }
 
     @Override
