@@ -26,6 +26,20 @@ public class LinkedList {
         size++;
     }
 
+    public int getIndex(Card card) {
+        No current = head;
+        for (int i = 0; i < size; i++) {
+            System.out.println(current.card == card);
+            if (current.card == card) {
+
+                return i;
+            } else {
+                current = current.next;
+            }
+        }
+        return -1;
+    }
+
     public Card remove(int index) {
         if (index < 0 || index >= size) {
             throw new IndexOutOfBoundsException("Index: " + index + ", Tamanho: " + size);
