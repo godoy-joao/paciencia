@@ -46,7 +46,7 @@ public class Deck {
         for (int i = 1; i <= 7; i++) {
             for (int j = 0; j < i; j++) {
                 Card card = cards.get(index++);
-                if (j == i - 1) card.flip();
+                if (j == i - 1) card.flipUp();
 
                 System.out.println("Para cima: "+card.isFaceUp()+", Valor: "+card.getSuit().name()+" "+card.getRank());
                 card.setLocation(180 + (i * 140), 220 + (j*30));

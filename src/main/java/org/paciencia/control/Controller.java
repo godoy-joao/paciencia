@@ -2,12 +2,12 @@ package org.paciencia.control;
 
 import org.paciencia.card.Card;
 import org.paciencia.card.Deck;
+import org.paciencia.card.Suit;
 import org.paciencia.exception.InvalidMovementException;
 import org.paciencia.exception.MovementNotAllowedException;
 import org.paciencia.game.Render;
 import org.paciencia.game.Solitaire;
 import org.paciencia.util.LinkedList;
-import org.paciencia.util.Stack;
 
 import java.awt.*;
 
@@ -42,6 +42,7 @@ public class Controller {
             }
             Render.hasChanges = true;
         }
+        updateCardPositions();
     }
 
     private static boolean move(Point point) {
@@ -54,27 +55,33 @@ public class Controller {
                 int columnIndex = getColumnIndex(point);
                 if (columnIndex != -1) {
                     Card targetCard = Deck.columns[columnIndex].getLast();
-                    if (validateCardToCardMovement(selectedCard, targetCard)) {
-                        switch (cardSource) {
-                            case WASTE -> {
+                    switch (cardSource) {
+                        case WASTE -> {
+                            if (validateCardToCardMovement(selectedCard, targetCard)) {
                                 Deck.columns[columnIndex].add(Deck.waste.remove());
-
+                                clearSelectedCard();
+                                Render.hasChanges = true;
+                                return true;
+                            } else {
+                                clearSelectedCard();
+                                return false;
                             }
-                            case COLUMN -> {
+                        }
+                        case COLUMN -> {
+                            if (validateCardToCardMovement(selectedCard, targetCard)) {
                                 int selectedIndex = Deck.columns[horizontalIndex].getIndex(selectedCard);
-                                System.out.println(selectedIndex);
                                 LinkedList cardsToMove = new LinkedList();
-                                for (int i = selectedIndex; i < Deck.columns[horizontalIndex].size(); i++) {
+                                int columnSize = Deck.columns[horizontalIndex].size();
+                                for (int i = selectedIndex; i < columnSize; i++) {
                                     cardsToMove.add(Deck.columns[horizontalIndex].remove(i));
                                 }
                                 if (selectedIndex > 0 && !Deck.columns[horizontalIndex].isEmpty()) {
-                                    Deck.columns[horizontalIndex].get(selectedIndex - 1).flip();
+                                    Deck.columns[horizontalIndex].get(selectedIndex - 1).flipUp();
                                 }
-
                                 if (Deck.columns[columnIndex].isEmpty() && selectedCard.getRank() == 13) {
                                     for (int i = 0; i < cardsToMove.size(); i++) {
-                                       Card card = cardsToMove.removeFirst();
-                                       Deck.columns[columnIndex].add(card);
+                                        Card card = cardsToMove.removeFirst();
+                                        Deck.columns[columnIndex].add(card);
                                     }
                                 } else {
                                     for (int i = 0; i < cardsToMove.size(); i++) {
@@ -82,17 +89,23 @@ public class Controller {
                                         Deck.columns[columnIndex].add(card);
                                     }
                                 }
-                            }
-                            case FOUNDATION -> {
-
+                                clearSelectedCard();
+                                Render.hasChanges = true;
+                                return true;
+                            } else {
+                                clearSelectedCard();
+                                Render.hasChanges = true;
+                                return false;
                             }
                         }
-
-                        clearSelectedCard();
-                        return true;
-                    } else {
-                        return false;
+                        case FOUNDATION -> {
+                            Deck.columns[columnIndex].add(Deck.foundations[horizontalIndex].remove());
+                            Render.hasChanges = true;
+                        }
                     }
+                    clearSelectedCard();
+                    Render.hasChanges = true;
+                    return true;
                 } else {
                     throw new InvalidMovementException("Alvo inválido para movimento da carta.");
                 }
@@ -100,11 +113,120 @@ public class Controller {
             case FOUNDATION -> {
                 int foundationIndex = getFoundationIndex(point);
                 if (foundationIndex != -1) {
-
+                    if (Deck.foundations[foundationIndex].isEmpty()) {
+                        if (selectedCard.getRank() == 1) {
+                            switch (cardSource) {
+                                case COLUMN -> {
+                                    int selectedIndex = Deck.columns[horizontalIndex].getIndex(selectedCard);
+                                    Deck.foundations[foundationIndex].add(Deck.columns[horizontalIndex].remove(selectedIndex));
+                                    if (!Deck.columns[horizontalIndex].isEmpty()) {
+                                        Deck.columns[horizontalIndex].get(selectedIndex - 1).flipUp();
+                                    }
+                                    clearSelectedCard();
+                                    Render.hasChanges = true;
+                                    return true;
+                                }
+                                case WASTE -> {
+                                    Deck.foundations[foundationIndex].add(Deck.waste.remove());
+                                    clearSelectedCard();
+                                    Render.hasChanges = true;
+                                    return true;
+                                }
+                            }
+                        } else {
+                            throw new InvalidMovementException("A primeira carta na base deve ser um Às.");
+                        }
+                    } else {
+                        if (validateCardToFoundationMovement(selectedCard, Deck.foundations[foundationIndex].get())) {
+                            switch (cardSource) {
+                                case COLUMN -> {
+                                    int selectedIndex = Deck.columns[horizontalIndex].getIndex(selectedCard);
+                                    Card card = Deck.columns[horizontalIndex].remove(selectedIndex);
+                                    if (!Deck.columns[horizontalIndex].isEmpty()) {
+                                        Deck.columns[horizontalIndex].get(selectedIndex - 1).flipUp();
+                                    }
+                                    Deck.foundations[foundationIndex].add(card);
+                                    clearSelectedCard();
+                                    Render.hasChanges = true;
+                                    return true;
+                                }
+                                case WASTE -> {
+                                    Deck.foundations[foundationIndex].add(Deck.waste.remove());
+                                    clearSelectedCard();
+                                    Render.hasChanges = true;
+                                    return true;
+                                }
+                            }
+                            clearSelectedCard();
+                            Render.hasChanges = true;
+                            return false;
+                        } else {
+                            throw new InvalidMovementException("Movimento inválido.");
+                        }
+                    }
+                    clearSelectedCard();
+                    Render.hasChanges = true;
+                    return false;
                 } else {
                     throw new InvalidMovementException("Alvo inválido para movimento da carta.");
                 }
             }
+        }
+        clearSelectedCard();
+        return false;
+    }
+
+    private static void updateCardPositions() {
+        for (int i = 0; i < Deck.columns.length; i++) {
+            for (int j = 0; j < Deck.columns[i].size(); j++) {
+                int cardX = 180 + (i * 140);
+                int cardY = 220 + (j * 30);
+                Deck.columns[i].get(j).setLocation(cardX, cardY);
+            }
+        }
+        for (int i = 0; i < Deck.foundations.length; i++) {
+            if (!Deck.foundations[i].isEmpty()) {
+                for (int j = 0; j < Deck.foundations[i].size(); j++) {
+                    int cardX = 680 + (i * 120);
+                    Deck.foundations[i].get(j).setLocation(cardX, 40);
+                }
+            }
+        }
+        for (int i = Deck.waste.size(); i > 0; i--) {
+            int cards = Math.min(3, Deck.waste.size());
+            for (int j = cards; j > 0; j--) {
+                int cardIndex = Deck.waste.size() - i;
+                Deck.waste.get(cardIndex).setLocation(530 - (j * 50), 40);
+            }
+        }
+    }
+
+    private static boolean validateCardToFoundationMovement(Card selected, Card target) {
+        if (!(selected.getRank() <= target.getRank())) {
+            switch (selected.getSuit()) {
+                case CLUBS -> {
+                    if (target.getSuit() == Suit.CLUBS) {
+                        return true;
+                    }
+                }
+                case HEARTS -> {
+                    if (target.getSuit() == Suit.HEARTS) {
+                        return true;
+                    }
+                }
+                case SPADES -> {
+                    if (target.getSuit() == Suit.SPADES) {
+                        return true;
+                    }
+                }
+                case DIAMONDS -> {
+                    if (target.getSuit() == Suit.DIAMONDS) {
+                        return true;
+                    }
+                }
+            }
+        } else {
+            throw new MovementNotAllowedException("A carta selecionada deve ter um valor maior que a carta na base.");
         }
         return false;
     }
@@ -123,7 +245,7 @@ public class Controller {
                 if (selected.getRank() >= target.getRank()) {
                     throw new MovementNotAllowedException("Uma carta não pode ser movida para outra de menor ou igual valor.");
                 } else {
-                    throw  new MovementNotAllowedException("Uma carta só pode ser movida para outra de valor imediatamente maior.");
+                    throw new MovementNotAllowedException("Uma carta só pode ser movida para outra de valor imediatamente maior.");
                 }
             }
         } else {
@@ -140,24 +262,6 @@ public class Controller {
         return -1;
     }
 
-    private static LinkedList getColumn(int index) {
-        for (int i = 0; i < Deck.columns.length; i++) {
-            if (i == index) {
-                return Deck.columns[i];
-            }
-        }
-        return null;
-    }
-
-    private static Stack getFoundation(int index) {
-        for (int i = 0; i < Deck.foundations.length; i++) {
-            if (i == index) {
-                return Deck.foundations[i];
-            }
-        }
-        return null;
-    }
-
     private static int getFoundationIndex(Point point) {
         for (int i = 0; i < foundationRects.length; i++) {
             if (foundationRects[i].contains(point)) {
@@ -165,15 +269,6 @@ public class Controller {
             }
         }
         return -1;
-    }
-
-    private static Stack getFoundationIfContainsCard(Card card) {
-        for (int i = 0; i < Deck.foundations.length; i++) {
-            if (Deck.foundations[i].get() == card) {
-                return Deck.foundations[i];
-            }
-        }
-        return new Stack();
     }
 
     public static CardSource getTargetSource(Point point) {
@@ -197,18 +292,15 @@ public class Controller {
     public static void setSelectedCard(Point point) {
         if (pileRect.contains(point)) {
             flipPileCard();
-            System.out.println("PILHA");
         }
         if (wasteRect.contains(point)) {
             selectedCard = Deck.waste.get();
             cardSource = CardSource.WASTE;
-            System.out.println("DESCARTE");
             return;
         }
         for (int i = 0; i < columnRects.length; i++) {
 
             if (columnRects[i].contains(point)) {
-                System.out.println("COLUNA " + i);
                 Card card = null;
                 for (int j = 0; j < Deck.columns[i].size(); j++) {
                     if (Deck.columns[i].get(j).contains(point) && Deck.columns[i].get(j).isFaceUp()) {
@@ -234,13 +326,13 @@ public class Controller {
     private static void flipPileCard() {
         if (!Deck.pile.isEmpty()) {
             Card card = Deck.pile.remove();
-            card.flip();
+            card.flipUp();
             Deck.waste.add(card);
         } else {
             if (!Deck.waste.isEmpty()) {
                 while (!Deck.waste.isEmpty()) {
                     Card card = Deck.waste.remove();
-                    card.flip();
+                    card.flipDown();
                     Deck.pile.add(card);
                 }
             }
@@ -251,6 +343,10 @@ public class Controller {
         selectedCard = null;
         cardSource = null;
         horizontalIndex = 0;
+        Render.hasChanges = true;
     }
 
+    public static Card getSelectedCard() {
+        return selectedCard;
+    }
 }

@@ -10,7 +10,7 @@ public class Stack {
         list = new LinkedList();
     }
 
-    public void push(Card card) {
+    public void add(Card card) {
         list.add(card);
     }
 
@@ -26,6 +26,13 @@ public class Stack {
             throw new IllegalStateException("a pilha está vazia");
         }
         return list.get(list.size() - 1);
+    }
+
+    public Card get(int index) {
+        if (isEmpty()) {
+            throw new IllegalStateException("A pilha está vazia.");
+        }
+        return list.get(index);
     }
 
     public boolean isEmpty() {

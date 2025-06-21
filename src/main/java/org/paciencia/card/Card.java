@@ -5,8 +5,6 @@ import org.jetbrains.annotations.NotNull;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 
 public class Card extends Rectangle{
 
@@ -15,10 +13,14 @@ public class Card extends Rectangle{
     private boolean faceUp;
     private BufferedImage face;
     private static BufferedImage back = null;
+    private static BufferedImage backLowOpacity = null;
 
     public Card(Suit suit, int rank) {
         if (back == null) {
             back = getImage("/cards-img/card_back.png");
+        }
+        if (backLowOpacity == null) {
+            backLowOpacity = getImage("/cards-img/back_low_opacity.png");
         }
         this.face = getImage("/cards-img/" + getCardName(suit, rank));
         this.suit = suit;
@@ -32,6 +34,10 @@ public class Card extends Rectangle{
 
     public static BufferedImage getBack() {
         return back;
+    }
+
+    public static BufferedImage getBackLowOpacity() {
+        return backLowOpacity;
     }
 
     private String getCardName(Suit suit, int rank) {
@@ -81,8 +87,12 @@ public class Card extends Rectangle{
         return faceUp;
     }
 
-    public void flip() {
-        faceUp = !faceUp;
+    public void flipUp() {
+        faceUp = true;
+    }
+
+    public void flipDown() {
+        faceUp = false;
     }
 
     public boolean isBlack() {
