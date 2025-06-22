@@ -14,6 +14,7 @@ import java.awt.*;
 public class Controller {
 
     private static Card selectedCard;
+    private static int selectedCards;
     private static CardSource cardSource;
     private static int horizontalIndex;
     private static Rectangle wasteRect;
@@ -32,17 +33,20 @@ public class Controller {
         }
     }
 
+    public static int selectedAmount() {
+        return selectedCards;
+    }
+
     public static void onClick(Point point) {
         if (selectedCard == null) {
             setSelectedCard(point);
-            Render.hasChanges = true;
         } else {
             if (!move(point)) {
                 setSelectedCard(point);
             }
-            Render.hasChanges = true;
         }
         updateCardPositions();
+        Render.hasChanges = true;
     }
 
     private static boolean move(Point point) {
@@ -73,22 +77,26 @@ public class Controller {
                                 LinkedList cardsToMove = new LinkedList();
                                 int columnSize = Deck.columns[horizontalIndex].size();
                                 for (int i = selectedIndex; i < columnSize; i++) {
-                                    cardsToMove.add(Deck.columns[horizontalIndex].remove(i));
+                                    Card card = Deck.columns[horizontalIndex].get(i);
+                                    cardsToMove.add(card);
+                                    System.out.println("Selected: "+card.getSuit() + " "+card.getRank());
+                                }
+                                System.out.println("Cartas a mover: "+cardsToMove.size());
+                                for (int i = 0; i < cardsToMove.size(); i++) {
+                                    Deck.columns[horizontalIndex].removeLast();
+                                    System.out.println("Removido");
                                 }
                                 if (selectedIndex > 0 && !Deck.columns[horizontalIndex].isEmpty()) {
                                     Deck.columns[horizontalIndex].get(selectedIndex - 1).flipUp();
                                 }
-                                if (Deck.columns[columnIndex].isEmpty() && selectedCard.getRank() == 13) {
-                                    for (int i = 0; i < cardsToMove.size(); i++) {
-                                        Card card = cardsToMove.removeFirst();
-                                        Deck.columns[columnIndex].add(card);
-                                    }
-                                } else {
-                                    for (int i = 0; i < cardsToMove.size(); i++) {
-                                        Card card = cardsToMove.removeFirst();
-                                        Deck.columns[columnIndex].add(card);
-                                    }
+                                System.out.println("Cartas a adicionar: "+cardsToMove.size());
+                                int cardsToAdd = cardsToMove.size();
+                                for (int i = 0; i < cardsToAdd; i++) {
+                                    Card card = cardsToMove.removeFirst();
+                                    System.out.println(i+". Adicionando carta: "+card.getSuit() + " "+card.getRank());
+                                    Deck.columns[columnIndex].add(card);
                                 }
+
                                 clearSelectedCard();
                                 Render.hasChanges = true;
                                 return true;
@@ -118,7 +126,11 @@ public class Controller {
                             switch (cardSource) {
                                 case COLUMN -> {
                                     int selectedIndex = Deck.columns[horizontalIndex].getIndex(selectedCard);
-                                    Deck.foundations[foundationIndex].add(Deck.columns[horizontalIndex].remove(selectedIndex));
+                                    if (Deck.columns[horizontalIndex].getLast() != selectedCard) {
+                                        throw new InvalidMovementException("Não pode retirar a carta do meio da coluna.");
+                                    } else {
+                                        Deck.foundations[foundationIndex].add(Deck.columns[horizontalIndex].remove(selectedIndex));
+                                    }
                                     if (!Deck.columns[horizontalIndex].isEmpty()) {
                                         Deck.columns[horizontalIndex].get(selectedIndex - 1).flipUp();
                                     }
@@ -202,6 +214,12 @@ public class Controller {
     }
 
     private static boolean validateCardToFoundationMovement(Card selected, Card target) {
+        if (target == null) {
+            return true;
+        }
+        if (selected.getRank() != target.getRank() +1) {
+            return false;
+        }
         if (!(selected.getRank() <= target.getRank())) {
             switch (selected.getSuit()) {
                 case CLUBS -> {
@@ -302,13 +320,24 @@ public class Controller {
 
             if (columnRects[i].contains(point)) {
                 Card card = null;
+                int selected = 0;
+                int selectedIndex = 0;
                 for (int j = 0; j < Deck.columns[i].size(); j++) {
                     if (Deck.columns[i].get(j).contains(point) && Deck.columns[i].get(j).isFaceUp()) {
                         card = Deck.columns[i].get(j);
                         cardSource = CardSource.COLUMN;
                         horizontalIndex = i;
+                        selectedIndex = j;
                     }
                 }
+
+                LinkedList cardsToMove = new LinkedList();
+                int columnSize = Deck.columns[horizontalIndex].size();
+                for (int h = selectedIndex; h < columnSize; h++) {
+                    selected++;
+                }
+
+                selectedCards = selected;
                 selectedCard = card;
                 return;
             }
@@ -344,6 +373,7 @@ public class Controller {
         cardSource = null;
         horizontalIndex = 0;
         Render.hasChanges = true;
+        selectedCards = 0;
     }
 
     public static Card getSelectedCard() {

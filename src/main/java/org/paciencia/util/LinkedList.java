@@ -29,9 +29,7 @@ public class LinkedList {
     public int getIndex(Card card) {
         No current = head;
         for (int i = 0; i < size; i++) {
-            System.out.println(current.card == card);
             if (current.card == card) {
-
                 return i;
             } else {
                 current = current.next;

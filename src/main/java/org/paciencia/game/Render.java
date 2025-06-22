@@ -7,6 +7,7 @@ import org.paciencia.control.ControllerOld;
 import org.paciencia.util.LinkedList;
 
 import java.awt.*;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 
 public class Render {
@@ -62,8 +63,9 @@ public class Render {
     private static void drawOutline(Graphics2D g) {
         if (Controller.getSelectedCard() != null) {
             g.setColor(Color.BLACK);
-            Rectangle rect = Controller.getSelectedCard().getBounds();
             g.setStroke(new BasicStroke(3.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+            Rectangle rect = Controller.getSelectedCard();
+            rect.setSize(100, 140 + ((Controller.selectedAmount()-1) * 30));
             g.draw(rect);
         }
     }
